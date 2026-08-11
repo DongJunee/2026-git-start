@@ -14,90 +14,49 @@ GitHub 웹에서 추가한 내용입니다.
 
 오늘의 학습 목표: 작업자 A·B의 Git 협업 및 Merge 충돌 해결
 
-# Python 실습 과정
+# Git & GitHub Merge 충돌 해결 실습
 
-## 시퀀스 다이어그램
+## 1. 실습 목표
 
-```mermaid
-sequenceDiagram
-    actor User as 사용자
-    participant Main as main_app.py
-    participant Basic as magic_calc/basic_ops.py
-    participant Advanced as magic_calc/advanced_ops.py
-    participant AgeFunc as input_age()
-    participant AgeError as AgeException
+이번 실습에서는 GitHub의 원격 저장소와 로컬 저장소의 관계를 이해하고,
+여러 작업자가 같은 저장소에서 작업할 때 발생할 수 있는
+`Merge Conflict`를 직접 발생시키고 해결해본다.
 
-    User->>Main: 프로그램 실행
+주요 학습 내용
 
-    Main->>Main: if __name__ == '__main__' 확인
+- GitHub 저장소 Clone
+- `git add`, `git commit`, `git push`
+- `git fetch`
+- `git merge`
+- `origin/main`과 로컬 `main`의 차이
+- Push가 거절되는 이유
+- Merge Conflict 발생 원리
+- 충돌 해결
+- Merge Commit
+- 여러 작업자가 GitHub를 이용하여 협업하는 과정
 
-    alt 직접 실행한 경우
-        Main->>Main: print('hi')
-    else 모듈로 import된 경우
-        Main-->>Main: __main__ 코드 실행 안 함
-    end
 
-    Main->>Basic: basic_ops 모듈 호출
-    Basic-->>Main: 기본 연산 기능 제공
+---
 
-    Main->>Advanced: advanced_ops 모듈 호출
-    Advanced-->>Main: 고급 연산 기능 제공
+# 2. 1단계 - GitHub와 로컬 저장소의 Merge 충돌
 
-    Note over Main: 기본 예외 처리 실습
+## 실습 구조
 
-    Main->>Main: raise TypeError('입력값 오류')
-
-    alt TypeError 발생
-        Main->>Main: except TypeError as te
-        Main->>Main: print(te.args)
-    end
-
-    Note over Main,AgeError: 사용자 정의 예외 처리 실습
-
-    Main->>AgeFunc: input_age() 호출
-    AgeFunc->>User: 나이를 입력하세요
-    User-->>AgeFunc: 나이 입력
-
-    AgeFunc->>AgeFunc: int()로 숫자 변환
-    AgeFunc->>AgeFunc: 입력한 나이 검사
-
-    alt age < 0
-        AgeFunc->>AgeError: raise AgeException("나이는 양수입니다.")
-        AgeError-->>Main: AgeException 발생
-        Main->>Main: except AgeException as e
-        Main->>User: 예외 메시지 출력
-
-    else age > 150
-        AgeFunc->>AgeError: raise AgeException("진짜?")
-        AgeError-->>Main: AgeException 발생
-        Main->>Main: except AgeException as e
-        Main->>User: 예외 메시지 출력
-
-    else 정상적인 나이
-        AgeFunc-->>Main: return age
-        Main->>Main: else 실행
-        Main->>User: 입력한 나이 출력
-    end
-```
-
-## 프로젝트 구조
+GitHub 웹과 로컬 컴퓨터에서 같은 `README.md` 파일의
+같은 부분을 서로 다르게 수정하여 충돌을 발생시킨다.
 
 ```text
-my_first_package/
-│
-├── main_app.py
-│
-└── magic_calc/
-    ├── basic_ops.py
-    └── advanced_ops.py
+GitHub 원격 저장소
+        ↕
+      Clone
+        ↕
+로컬 저장소
 ```
 
-## 예외 처리 흐름
+---
 
-`input_age()` 함수에서 입력값을 검사하고 잘못된 나이가 입력되면
-`AgeException` 예외를 발생시킨다.
+## 2-1. GitHub 저장소 Clone
 
-발생한 예외는 `input_age()`를 호출한 부분의 `except AgeException`에서
-처리한다.
+```bash
+cd /c
 
-정상적인 값이 입력되면 `age`를 반환하고 `else` 블록에서 결과를 출력한다.
